@@ -12,8 +12,8 @@ class CustomFormatter(argparse.HelpFormatter):
         super(CustomFormatter, self).__init__(prog, max_help_position=50)
 
     def add_usage(self, usage, actions, groups, prefix=None):
-        """
-        Hack add_usage to add fake "-- command [arguments]" to usage
+        """ Hack add_usage to add fake "-- command [arguments]" to the usage
+
         """
         actions.append(argparse._StoreAction(
             option_strings=[],
@@ -25,11 +25,12 @@ class CustomFormatter(argparse.HelpFormatter):
 
 
 def get_parser():
-    """ Create ianotor argument parser with a set of reasonable defaults
+    """ Create hupwatch argument parser with a set of reasonable defaults
+
     :return: argument parser
     """
     parser = argparse.ArgumentParser(
-        "hupswitch",
+        "hupwatch",
         description="Greceful reloader for services",
         formatter_class=CustomFormatter,
     )
@@ -44,7 +45,11 @@ def get_parser():
         '-w', '--warmup-time',
         metavar='SEC',
         type=float,
-        default=0,
+        # note: there is small amount of warmup time by default because
+        #       it is necessary in order to find if process actually started
+        #       in case of obvious issues like syntax errors so hupwatch
+        #       can abort the reload
+        default=1,
         help="Time for warmup of new service before attempting to shutdown the old one",  # noqa
     )
 
@@ -57,10 +62,11 @@ def get_parser():
 
 
 def parse_args():
-    """
-    Parse program arguments.
+    """ Parse program arguments.
+
     This function ensures that argv arguments after '--' won't be parsed by
-    `argparse` and will be returned as separate list.
+    `argparse` and will be returned as a separate list.
+
     :return: (args, command) two-tuple
     """
 

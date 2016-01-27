@@ -66,18 +66,31 @@ def main():
         ))
         time.sleep(args.warmup_time)
 
-        logger.debug("HUP: Sending SIGTERM to old process ({pid})".format(
-            pid=old_service.process.pid,
-        ))
-        old_service.process.send_signal(signal.SIGTERM)
+        if new_service.is_up():
+            logger.debug("HUP: Sending SIGTERM to old process ({pid})".format(
+                pid=old_service.process.pid,
+            ))
+            old_service.process.send_signal(signal.SIGTERM)
 
-        logger.debug("HUP: Waiting for process ({pid}) to quit...".format(
-            pid=old_service.process.pid
-        ))
-        logger.info(
-            "HUP: Old process quit with code: %s" % old_service.process.wait()
-        )
-        services.append(new_service)
+            logger.debug("HUP: Waiting for process ({pid}) to quit...".format(
+                pid=old_service.process.pid
+            ))
+            logger.info(
+                "HUP: Old process quit with code: {code}".format(
+                    code=old_service.process.wait()
+                )
+            )
+            services.append(new_service)
+        else:
+            # note: It may look like there is a small race condition between
+            #       SIGHUP and SIGCHLD but sigchld_handler will check if
+            #       current service is running so hupwatch won't quit eagerly
+            # note: We may think about getting rid of SIGCHLD handler anyway
+            #       and simply poll service[0] process later in the main loop.
+            #       This may simplify things a bit
+            logger.error("HUP: new process failed to start. Abort reload")
+            services.append(old_service)
+
         logger.debug("HUP: <<<")
 
     def sigchld_handler(*_):
