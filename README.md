@@ -138,6 +138,18 @@ two things to make it working as a solution for graceful reload:
 See the usage with `hupwatch --help` for more information on possible
 configuration options:
 
+    usage: hupwatch [-h] [-v] [-w SEC] [-k] -- command [arguments]
+
+    Graceful reloader for services
+
+    optional arguments:
+      -h, --help                 show this help message and exit
+      -v, --verbose              enable logging to stdout (use multiple times to
+                                 increase verbosity)
+      -w SEC, --warmup-time SEC  Time for warmup of new service before attempting
+                                 to shutdown the old one
+      -k, --kill-at-exit         Kill the child process when HUP watch exits
+
 
 There is also some details important detail of handling failures
 and what to do when **hupwatch** receives other signals (e.g. `KILL`, `TERM`,

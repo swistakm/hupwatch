@@ -31,7 +31,7 @@ def get_parser():
     """
     parser = argparse.ArgumentParser(
         "hupwatch",
-        description="Greceful reloader for services",
+        description="Graceful reloader for services",
         formatter_class=CustomFormatter,
     )
 
